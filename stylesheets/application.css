@@ -1,0 +1,43 @@
+html, body, header, ul, li, div, span {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: inherit;
+  vertical-align: inherit;
+  box-sizing: inherit;
+  background: transparent;
+}
+
+.calendar {
+  display: block;
+  height: 720px;
+  width: 900px;
+  margin: 10px 0px;
+}
+
+.hours-container {
+  float: left;
+  height: 720px;
+  margin-top: -7px;
+  margin-right: 5px;
+}
+
+.hours-container li {
+  list-style: none;
+  padding-bottom: 11.9px;
+  text-align: right;
+}
+
+.events-container {
+  background-color: #eee;
+  width: 620px;
+  min-height: 720px;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+  float: left;
+}
