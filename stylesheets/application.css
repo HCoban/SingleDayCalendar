@@ -40,6 +40,7 @@ html, body, header, ul, li, div, span {
   padding-right: 10px;
   box-sizing: border-box;
   float: left;
+  border-left: 1px solid #ccc;
 }
 
 .events {
@@ -51,8 +52,12 @@ html, body, header, ul, li, div, span {
   background-color: #fff;
   border: 1px solid #ccc;
   border-left: 5px solid #080;
-  padding: 5px;
   overflow: hidden;
+}
+
+.event-content {
+  width: auto;
+  padding: 5px;
 }
 
 .item {
@@ -63,4 +68,9 @@ html, body, header, ul, li, div, span {
 
 .location {
   display: block;
+}
+
+.graytext {
+  color: #ccc;
+  padding-left: 3px;
 }

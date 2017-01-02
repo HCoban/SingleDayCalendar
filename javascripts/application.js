@@ -41,7 +41,6 @@ function Calendar () {
 
     for (var j = 0; j < this.events.length; j++) {
       var currentEvent = this.getEvent(j);
-      // debugger
       for (var minute = currentEvent.start; minute < currentEvent.end; minute++) {
         this.minutes[minute].push(currentEvent.id);
       }
@@ -69,6 +68,10 @@ function Calendar () {
         }
 
         group = null;
+      }
+
+      if (group) {
+        this.eventGroups[groupKey] = {events: group};
       }
     }
 
@@ -142,6 +145,7 @@ function CalendarEvent (id, event) {
 }
 
 function layOutDay (events) {
+  clearCalendar();
   var calendar = new Calendar;
   for (var i = 0; i < events.length; i++) {
     var currentEvent = new CalendarEvent(i, events[i]);
@@ -154,7 +158,13 @@ function layOutDay (events) {
   calendar.adjustWidth();
   calendar.calculateXCoordinate();
   render(calendar);
+}
 
+function clearCalendar () {
+  var previousEvents = document.getElementsByClassName("events");
+  if (previousEvents.length > 0) {
+    previousEvents[0].remove();
+  }
 }
 
 function render (calendar) {
@@ -174,16 +184,20 @@ function render (calendar) {
     eventDiv.style.setProperty("width", `${groupWidth}px`);
     eventDiv.style.setProperty("left", `${currentEvent.xCoordinate * groupWidth}px`);
 
+    var eventContent = document.createElement("div");
+    eventContent.className = "event-content";
+
     var item = document.createElement("span");
     item.className = "item";
     item.textContent = currentEvent.item;
-    eventDiv.appendChild(item);
+    eventContent.appendChild(item);
 
     var location = document.createElement("span");
     location.className = "location";
     location.textContent = currentEvent.location;
-    eventDiv.appendChild(location);
+    eventContent.appendChild(location);
 
+    eventDiv.appendChild(eventContent);
     eventsDiv.appendChild(eventDiv);
 
     container.appendChild(eventsDiv);
