@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function Calendar () {
   this.events = [];
+  this.minutes = {};
+  this.eventGroups = {};
   this.addEvent = function (event) {
     this.events.push(event);
   };
@@ -32,6 +34,72 @@ function Calendar () {
     }
   };
 
+  this.generateMinutes = function () {
+    for (var i = 0; i < 720; i++) {
+      this.minutes[i] = [];
+    }
+
+    for (var j = 0; j < this.events.length; j++) {
+      var currentEvent = this.getEvent(j);
+      // debugger
+      for (var minute = currentEvent.start; minute < currentEvent.end; minute++) {
+        this.minutes[minute].push(currentEvent.id);
+      }
+    }
+  };
+
+  this.generateEventGroups = function () {
+    var groupKey = 0;
+    for (var minute = 0; minute < 720; minute++) {
+      if (this.minutes[minute].length > 0) {
+        var group = group || [];
+        var events = this.minutes[minute];
+        for (var i = 0; i < events.length; i++) {
+          var id = events[i];
+          if(!(group.includes(id))) {
+            group.push(id);
+            var currentEvent = this.getEvent(id);
+            currentEvent.groupKey = groupKey;
+          }
+        }
+      } else {
+        if (group) {
+          this.eventGroups[groupKey] = {events: group};
+          groupKey++;
+        }
+
+        group = null;
+      }
+    }
+
+  };
+
+  this.adjustWidth = function () {
+    for (var i = 0; i < 720; i++) {
+      var minute = this.minutes[i];
+      for (var j = 0; j < minute.length; j++) {
+        var currentEvent = this.getEvent(minute[j]);
+        var widthFactor = Math.max(minute.length, currentEvent.widthFactor);
+        currentEvent.widthFactor = widthFactor;
+      }
+    }
+
+    var that = this;
+    var groupKeys = Object.keys(this.eventGroups);
+    for (var groupId = 0; groupId < groupKeys.length; groupId++) {
+      var group = this.eventGroups[groupId];
+      var groupWidthFactor = 0;
+      group.events.forEach(function (eventId) {
+        var event = that.getEvent(eventId);
+        if (event.widthFactor > groupWidthFactor) {
+          groupWidthFactor = event.widthFactor;
+        }
+      });
+
+      group.groupWidthFactor = groupWidthFactor;
+    }
+  };
+
 }
 
 function CalendarEvent (id, event) {
@@ -42,6 +110,7 @@ function CalendarEvent (id, event) {
   this.item = event.item || "Sample Item";
   this.location = event.location || "Sample Location";
   this.adjacent = [];
+  this.widthFactor = 1;
 }
 
 function layOutDay (events) {
@@ -52,7 +121,11 @@ function layOutDay (events) {
   }
 
   calendar.addAdjacentEvents();
+  calendar.generateMinutes();
+  calendar.generateEventGroups();
+  calendar.adjustWidth();
   render(calendar);
+
 }
 
 function render (calendar) {
@@ -66,6 +139,9 @@ function render (calendar) {
     eventDiv.className = "event";
     eventDiv.style.setProperty("top", `${currentEvent.start}px`);
     eventDiv.style.setProperty("height", `${currentEvent.duration}px`);
+
+    var group = calendar.eventGroups[currentEvent.groupKey];
+    eventDiv.style.setProperty("width", `${600 / group.groupWidthFactor}px`);
 
     var item = document.createElement("span");
     item.className = "item";
