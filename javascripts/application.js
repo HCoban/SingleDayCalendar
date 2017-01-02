@@ -190,32 +190,35 @@ function render (calendar) {
 
   for (var i = 0; i < calendar.events.length; i++) {
     var currentEvent = calendar.getEvent(i);
-    var eventDiv = document.createElement("div");
-    eventDiv.className = "event";
-    eventDiv.style.setProperty("top", `${currentEvent.start}px`);
-    eventDiv.style.setProperty("height", `${currentEvent.duration}px`);
 
-    var group = calendar.eventGroups[currentEvent.groupKey];
-    var groupWidth = 600 / group.groupWidthFactor;
-    eventDiv.style.setProperty("width", `${groupWidth}px`);
-    eventDiv.style.setProperty("left", `${currentEvent.xCoordinate * groupWidth}px`);
+    if (currentEvent.end > currentEvent.start) {
+      var eventDiv = document.createElement("div");
+      eventDiv.className = "event";
+      eventDiv.style.setProperty("top", `${currentEvent.start}px`);
+      eventDiv.style.setProperty("height", `${currentEvent.duration}px`);
 
-    var eventContent = document.createElement("div");
-    eventContent.className = "event-content";
+      var group = calendar.eventGroups[currentEvent.groupKey];
+      var groupWidth = 600 / group.groupWidthFactor;
+      eventDiv.style.setProperty("width", `${groupWidth}px`);
+      eventDiv.style.setProperty("left", `${currentEvent.xCoordinate * groupWidth}px`);
 
-    var item = document.createElement("span");
-    item.className = "item";
-    item.textContent = currentEvent.item;
-    eventContent.appendChild(item);
+      var eventContent = document.createElement("div");
+      eventContent.className = "event-content";
 
-    var location = document.createElement("span");
-    location.className = "location";
-    location.textContent = currentEvent.location;
-    eventContent.appendChild(location);
+      var item = document.createElement("span");
+      item.className = "item";
+      item.textContent = currentEvent.item;
+      eventContent.appendChild(item);
 
-    eventDiv.appendChild(eventContent);
-    eventsDiv.appendChild(eventDiv);
+      var location = document.createElement("span");
+      location.className = "location";
+      location.textContent = currentEvent.location;
+      eventContent.appendChild(location);
 
-    container.appendChild(eventsDiv);
+      eventDiv.appendChild(eventContent);
+      eventsDiv.appendChild(eventDiv);
+
+      container.appendChild(eventsDiv);
+    }
   }
 }
