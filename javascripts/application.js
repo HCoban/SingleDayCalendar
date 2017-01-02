@@ -14,123 +14,121 @@ function Calendar () {
   this.addEvent = function (event) {
     this.events.push(event);
   };
+}
 
-  this.getEvent = function (id) {
-    return this.events[id];
-  };
+Calendar.prototype.getEvent = function (id) {
+  return this.events[id];
+};
 
-  /*
-    Adds adjacent elements to an Event object. An event is an adjacent of
-    another event if they are colliding.
-  */
-  this.addAdjacentEvents = function () {
-    for (var i = 0; i < this.events.length; i++) {
-      for (var j = 0; j < this.events.length; j++) {
-        if (i!==j) {
-          var firstEvent = this.getEvent(i);
-          var secondEvent = this.getEvent(j);
-
-          if (firstEvent.start < secondEvent.end && firstEvent.end > secondEvent.start) {
-            firstEvent.adjacent.push(secondEvent.id);
-          }
-        }
-      }
-    }
-  };
-
-  /*
-    Generates the minutes object. The minutes object stores minutes in keys
-    and an array of eventIds in values. The eventIds are added to minute's
-    value array if the event takes place in that minute.
-  */
-  this.generateMinutes = function () {
-    for (var i = 0; i < 720; i++) {
-      this.minutes[i] = [];
-    }
-
+/*
+Adds adjacent elements to an Event object. An event is an adjacent of
+another event if they are colliding.
+*/
+Calendar.prototype.addAdjacentEvents = function () {
+  for (var i = 0; i < this.events.length; i++) {
     for (var j = 0; j < this.events.length; j++) {
-      var currentEvent = this.getEvent(j);
-      for (var minute = currentEvent.start; minute < currentEvent.end; minute++) {
-        this.minutes[minute].push(currentEvent.id);
+      if (i!==j) {
+        var firstEvent = this.getEvent(i);
+        var secondEvent = this.getEvent(j);
+
+        if (firstEvent.start < secondEvent.end && firstEvent.end > secondEvent.start) {
+          firstEvent.adjacent.push(secondEvent.id);
+        }
       }
     }
-  };
+  }
+};
 
-  /*
-    Generates eventGroups. Events share an eventGroup if they or
-    any of their adjacent events collide.
-  */
-  this.generateEventGroups = function () {
-    var groupKey = 0;
-    for (var minute = 0; minute < 720; minute++) {
-      if (this.minutes[minute].length > 0) {
-        var group = group || [];
-        var events = this.minutes[minute];
-        for (var i = 0; i < events.length; i++) {
-          var id = events[i];
-          if(!(group.includes(id))) {
-            group.push(id);
-            var currentEvent = this.getEvent(id);
-            currentEvent.groupKey = groupKey;
-          }
-        }
-      } else {
-        if (group) {
-          this.eventGroups[groupKey] = {events: group};
-          groupKey++;
-        }
+/*
+Generates the minutes object. The minutes object stores minutes in keys
+and an array of eventIds in values. The eventIds are added to minute's
+value array if the event takes place in that minute.
+*/
+Calendar.prototype.generateMinutes = function () {
+  for (var i = 0; i < 720; i++) {
+    this.minutes[i] = [];
+  }
 
-        group = null;
+  for (var j = 0; j < this.events.length; j++) {
+    var currentEvent = this.getEvent(j);
+    for (var minute = currentEvent.start; minute < currentEvent.end; minute++) {
+      this.minutes[minute].push(currentEvent.id);
+    }
+  }
+};
+
+/*
+Generates eventGroups. Events share an eventGroup if they or
+any of their adjacent events collide.
+*/
+Calendar.prototype.generateEventGroups = function () {
+  var groupKey = 0;
+  for (var minute = 0; minute < 720; minute++) {
+    if (this.minutes[minute].length > 0) {
+      var group = group || [];
+      var events = this.minutes[minute];
+      for (var i = 0; i < events.length; i++) {
+        var id = events[i];
+        if(!(group.includes(id))) {
+          group.push(id);
+          var currentEvent = this.getEvent(id);
+          currentEvent.groupKey = groupKey;
+        }
       }
-
+    } else {
       if (group) {
         this.eventGroups[groupKey] = {events: group};
+        groupKey++;
       }
+
+      group = null;
     }
 
-  };
+    if (group) {
+      this.eventGroups[groupKey] = {events: group};
+    }
+  }
+};
 
-  this.adjustWidth = function () {
-    for (var i = 0; i < 720; i++) {
-      var minute = this.minutes[i];
-      for (var j = 0; j < minute.length; j++) {
-        var currentEvent = this.getEvent(minute[j]);
-        var widthFactor = Math.max(minute.length, currentEvent.widthFactor);
-        currentEvent.widthFactor = widthFactor;
+Calendar.prototype.adjustWidth = function () {
+  for (var i = 0; i < 720; i++) {
+    var minute = this.minutes[i];
+    for (var j = 0; j < minute.length; j++) {
+      var currentEvent = this.getEvent(minute[j]);
+      var widthFactor = Math.max(minute.length, currentEvent.widthFactor);
+      currentEvent.widthFactor = widthFactor;
+    }
+  }
+
+  var that = this;
+  var groupKeys = Object.keys(this.eventGroups);
+  for (var groupId = 0; groupId < groupKeys.length; groupId++) {
+    var group = this.eventGroups[groupId];
+    var groupWidthFactor = 0;
+    group.events.forEach(function (eventId) {
+      var event = that.getEvent(eventId);
+      if (event.widthFactor > groupWidthFactor) {
+        groupWidthFactor = event.widthFactor;
       }
+    });
+
+    group.groupWidthFactor = groupWidthFactor;
+  }
+};
+
+Calendar.prototype.calculateXCoordinate = function () {
+  var calendar = this;
+  var groupKeys = Object.keys(calendar.eventGroups);
+  for (var i = 0; i < groupKeys.length; i++) {
+    var group = calendar.eventGroups[groupKeys[i]];
+
+    for (var j = 0; j < group.events.length; j++) {
+      var currentEvent = calendar.getEvent(group.events[j]);
+
+      checkSpacesAndSetXCoordinate(currentEvent, group.groupWidthFactor, calendar);
     }
-
-    var that = this;
-    var groupKeys = Object.keys(this.eventGroups);
-    for (var groupId = 0; groupId < groupKeys.length; groupId++) {
-      var group = this.eventGroups[groupId];
-      var groupWidthFactor = 0;
-      group.events.forEach(function (eventId) {
-        var event = that.getEvent(eventId);
-        if (event.widthFactor > groupWidthFactor) {
-          groupWidthFactor = event.widthFactor;
-        }
-      });
-
-      group.groupWidthFactor = groupWidthFactor;
-    }
-  };
-
-  this.calculateXCoordinate = function () {
-    var calendar = this;
-    var groupKeys = Object.keys(calendar.eventGroups);
-    for (var i = 0; i < groupKeys.length; i++) {
-      var group = calendar.eventGroups[groupKeys[i]];
-
-      for (var j = 0; j < group.events.length; j++) {
-        var currentEvent = calendar.getEvent(group.events[j]);
-
-        checkSpacesAndSetXCoordinate(currentEvent, group.groupWidthFactor, calendar);
-      }
-    }
-  };
-
-}
+  }
+};
 
 function CalendarEvent (id, event) {
   this.id = id;

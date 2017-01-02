@@ -40,7 +40,6 @@ html, body, header, ul, li, div, span {
   padding-right: 10px;
   box-sizing: border-box;
   float: left;
-  border-left: 1px solid #ccc;
 }
 
 .events {
@@ -64,6 +63,7 @@ html, body, header, ul, li, div, span {
   display: block;
   color: #080;
   font-weight: bold;
+  font-size: 22px;
 }
 
 .location {
