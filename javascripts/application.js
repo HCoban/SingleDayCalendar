@@ -19,6 +19,10 @@ function Calendar () {
     return this.events[id];
   };
 
+  /*
+    Adds adjacent elements to an Event object. An event is an adjacent of
+    another event if they are colliding.
+  */
   this.addAdjacentEvents = function () {
     for (var i = 0; i < this.events.length; i++) {
       for (var j = 0; j < this.events.length; j++) {
@@ -34,6 +38,11 @@ function Calendar () {
     }
   };
 
+  /*
+    Generates the minutes object. The minutes object stores minutes in keys
+    and an array of eventIds in values. The eventIds are added to minute's
+    value array if the event takes place in that minute.
+  */
   this.generateMinutes = function () {
     for (var i = 0; i < 720; i++) {
       this.minutes[i] = [];
@@ -47,6 +56,10 @@ function Calendar () {
     }
   };
 
+  /*
+    Generates eventGroups. Events share an eventGroup if they or
+    any of their adjacent events collide.
+  */
   this.generateEventGroups = function () {
     var groupKey = 0;
     for (var minute = 0; minute < 720; minute++) {
@@ -205,6 +218,4 @@ function render (calendar) {
 
     container.appendChild(eventsDiv);
   }
-
-
 }
