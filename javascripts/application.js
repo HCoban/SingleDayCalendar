@@ -22,7 +22,7 @@ function Calendar () {
   this.addAdjacentEvents = function () {
     for (var i = 0; i < this.events.length; i++) {
       for (var j = 0; j < this.events.length; j++) {
-        if (!(i==j)) {
+        if (i!==j) {
           var firstEvent = this.getEvent(i);
           var secondEvent = this.getEvent(j);
 
@@ -100,6 +100,34 @@ function Calendar () {
     }
   };
 
+  this.calculateXCoordinate = function () {
+    var calendar = this;
+    var groupKeys = Object.keys(calendar.eventGroups);
+    for (var i = 0; i < groupKeys.length; i++) {
+      var group = calendar.eventGroups[groupKeys[i]];
+
+      for (var j = 0; j < group.events.length; j++) {
+        var currentEvent = calendar.getEvent(group.events[j]);
+
+        var spaces = new Array(group.groupWidthFactor);
+        currentEvent.adjacent.forEach(function (adjacentId) {
+          var adjacent = calendar.getEvent(adjacentId);
+          if (adjacent.xCoordinate !== undefined) {
+            spaces[adjacent.xCoordinate] = "filled";
+          }
+        });
+
+
+        for (var k = 0; k < spaces.length; k++) {
+          if (spaces[k] !== "filled") {
+            currentEvent.xCoordinate = k;
+            break;
+          }
+        }
+      }
+    }
+  };
+
 }
 
 function CalendarEvent (id, event) {
@@ -124,6 +152,7 @@ function layOutDay (events) {
   calendar.generateMinutes();
   calendar.generateEventGroups();
   calendar.adjustWidth();
+  calendar.calculateXCoordinate();
   render(calendar);
 
 }
@@ -141,7 +170,9 @@ function render (calendar) {
     eventDiv.style.setProperty("height", `${currentEvent.duration}px`);
 
     var group = calendar.eventGroups[currentEvent.groupKey];
-    eventDiv.style.setProperty("width", `${600 / group.groupWidthFactor}px`);
+    var groupWidth = 600 / group.groupWidthFactor;
+    eventDiv.style.setProperty("width", `${groupWidth}px`);
+    eventDiv.style.setProperty("left", `${currentEvent.xCoordinate * groupWidth}px`);
 
     var item = document.createElement("span");
     item.className = "item";
