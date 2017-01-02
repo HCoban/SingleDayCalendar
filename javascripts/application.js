@@ -31,22 +31,56 @@ function Calendar () {
       }
     }
   };
+
 }
 
-function CalendarEvent (id, start, end) {
+function CalendarEvent (id, event) {
   this.id = id;
-  this.start = start;
-  this.end = end;
+  this.start = event.start;
+  this.end = event.end;
+  this.duration = this.end - this.start;
+  this.item = event.item || "Sample Item";
+  this.location = event.location || "Sample Location";
   this.adjacent = [];
 }
 
 function layOutDay (events) {
   var calendar = new Calendar;
   for (var i = 0; i < events.length; i++) {
-    var currentEvent = new CalendarEvent(i, events[i].start, events[i].end);
+    var currentEvent = new CalendarEvent(i, events[i]);
     calendar.addEvent(currentEvent);
   }
 
   calendar.addAdjacentEvents();
+  render(calendar);
+}
+
+function render (calendar) {
+  var container = document.getElementsByClassName("events-container")[0];
+  var eventsDiv = document.createElement("div");
+  eventsDiv.className = "events";
+
+  for (var i = 0; i < calendar.events.length; i++) {
+    var currentEvent = calendar.getEvent(i);
+    var eventDiv = document.createElement("div");
+    eventDiv.className = "event";
+    eventDiv.style.setProperty("top", `${currentEvent.start}px`);
+    eventDiv.style.setProperty("height", `${currentEvent.duration}px`);
+
+    var item = document.createElement("span");
+    item.className = "item";
+    item.textContent = currentEvent.item;
+    eventDiv.appendChild(item);
+
+    var location = document.createElement("span");
+    location.className = "location";
+    location.textContent = currentEvent.location;
+    eventDiv.appendChild(location);
+
+    eventsDiv.appendChild(eventDiv);
+
+    container.appendChild(eventsDiv);
+  }
+
 
 }
