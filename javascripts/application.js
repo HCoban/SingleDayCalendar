@@ -112,21 +112,7 @@ function Calendar () {
       for (var j = 0; j < group.events.length; j++) {
         var currentEvent = calendar.getEvent(group.events[j]);
 
-        var spaces = new Array(group.groupWidthFactor);
-        currentEvent.adjacent.forEach(function (adjacentId) {
-          var adjacent = calendar.getEvent(adjacentId);
-          if (adjacent.xCoordinate !== undefined) {
-            spaces[adjacent.xCoordinate] = "filled";
-          }
-        });
-
-
-        for (var k = 0; k < spaces.length; k++) {
-          if (spaces[k] !== "filled") {
-            currentEvent.xCoordinate = k;
-            break;
-          }
-        }
+        checkSpacesAndSetXCoordinate(currentEvent, group.groupWidthFactor, calendar);
       }
     }
   };
@@ -164,6 +150,23 @@ function clearCalendar () {
   var previousEvents = document.getElementsByClassName("events");
   if (previousEvents.length > 0) {
     previousEvents[0].remove();
+  }
+}
+
+function checkSpacesAndSetXCoordinate (currentEvent, groupWidthFactor, calendar) {
+  var spaces = new Array(groupWidthFactor);
+  currentEvent.adjacent.forEach(function (adjacentId) {
+    var adjacent = calendar.getEvent(adjacentId);
+    if (adjacent.xCoordinate !== undefined) {
+      spaces[adjacent.xCoordinate] = "filled";
+    }
+  });
+
+  for (var i = 0; i < spaces.length; i++) {
+    if (spaces[i] !== "filled") {
+      currentEvent.xCoordinate = i;
+      break;
+    }
   }
 }
 
