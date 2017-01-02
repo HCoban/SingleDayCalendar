@@ -8,6 +8,8 @@ html, body, header, ul, li, div, span {
   text-align: inherit;
   text-decoration: inherit;
   vertical-align: inherit;
+  -moz-box-sizing: inherit;
+  -webkit-box-sizing: inherit;
   box-sizing: inherit;
   background: transparent;
 }
@@ -29,6 +31,9 @@ html, body, header, ul, li, div, span {
 .hours-container li {
   list-style: none;
   padding-bottom: 11.9px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   text-align: right;
 }
 
@@ -39,6 +44,8 @@ html, body, header, ul, li, div, span {
   padding-left: 10px;
   padding-right: 10px;
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   float: left;
 }
 
