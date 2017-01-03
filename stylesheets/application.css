@@ -35,6 +35,7 @@ html, body, header, ul, li, div, span {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   text-align: right;
+  height: 29.9px;
 }
 
 .events-container {
